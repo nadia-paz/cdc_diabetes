@@ -9,9 +9,23 @@ Diabetes and prediabetes are national epidemics impacting more than 133 million 
 
 <h2 style="color:#777;">2. Data Source and Aquisition</h2>
 <details><summary><i>Expand</i></summary>
-Data origin
 
-Data description can be find on Kaggle or at Behavioral Risk Factor Surveillance System 2015 <a href="https://www.cdc.gov/brfss/annual_data/2015/pdf/codebook15_llcp.pdf">Codebook Report</a>
+I downloaded the data for the project from the <a href="https://archive.ics.uci.edu/dataset/891/cdc+diabetes+health+indicators">UC Irvine Machine Learning Repository</a>. If you're interested in obtaining the same data, you can access it in the "data" folder of this project or visit the UC Irvine website and follow the instructions outlined in the "Import in Python" section. After getting `X` an `y` variables, I merged the data into a data frame and saved it as a `csv` file with following code:
+
+```python
+import os
+# merge data
+df = pd.concat([X, y], axis = 1)
+# save to csv
+df.to_csv('diabetis_data.csv', index_label=False)
+```
+
+The same data is also available on <a href="https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset?select=diabetes_binary_health_indicators_BRFSS2015.csv">Kaggle</a>, but be aware that the column names and order differ from those used in the project.
+
+
+Data description can be find on <a href="https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset?select=diabetes_binary_health_indicators_BRFSS2015.csv">Kaggle</a> or at Behavioral Risk Factor Surveillance System 2015 <a href="https://www.cdc.gov/brfss/annual_data/2015/pdf/codebook15_llcp.pdf">Codebook Report</a>
+
+### Data dictionary
 
 | Column name   | Definition  | Numer of Unique Values   |  Data Type       |
 | :------------------| :------------------|         :------------------:|  :------------------| 
@@ -39,6 +53,9 @@ Data description can be find on Kaggle or at Behavioral Risk Factor Surveillance
 |**Target Variable**
 ||
 |`Diabetes_binary` |The respondent has diabetis |2|int |
+
+### Data manipulations
+The original data consists from 253,680 rows and 22 columns. I dropped 24,206 duplicated rows, that leaves us with 229,474 rows.
 
 </details>
 
