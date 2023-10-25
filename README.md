@@ -55,12 +55,43 @@ Data description can be find on <a href="https://www.kaggle.com/datasets/alexteb
 |`Diabetes_binary` |The respondent has diabetis |2|int |
 
 ### Data manipulations
-The original data consists from 253,680 rows and 22 columns. I dropped 24,206 duplicated rows, that leaves us with 229,474 rows.
+The original data consists from 253,680 rows and 22 columns. I dropped 24,206 duplicated rows, that leaves us with 229,474 rows. 
+
 
 </details>
 
+<h2 style="color:#777;">3. Download the project</h2>
 
-<h2 style="color:#777;">3. Creating a virtual environtment</h2>
+<details><summary><i>Expand</i></summary>
+
+You can download it from this GitHub repository by selecting `Code` -> `Download ZIP`, or run the command `git clone git@github.com:nadia-paz/cdc_diabetis.git`
+`cd cdc_diabetis` to move to the project's directory.
+
+</details>
+
+<h2 style="color:#777;">4. Virtual environtments</h2>
+
+#### Anaconda
+
+The project is made using Python 3.9.18 on Anaconda. To create the same virtual environment with Anaconda please refer to the file `conda_requirements.txt`. Install Anaconda or Mamba if you don't have it yet and run the following command in your terminal from the project's directory:
+
+```
+conda create --name <env_name> --file conda_requirements.txt
+```
+After installing the environment activate it with the command:
+```
+conda activate <env_name>
+```
+and start `jupyter notebook`
+
+#### `venv`
+If you don't have Anaconda or don't want to use it, you can install required dependencies using Python's `venv`. They are located in the `requirements.txt` file. In the project's directory in your terminal run the command
+
+```
+
+```
+
+If you need just ts
 
 <h2 style="color:#777;">4. </h2>
 
