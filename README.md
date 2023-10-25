@@ -65,33 +65,73 @@ The original data consists from 253,680 rows and 22 columns. I dropped 24,206 du
 <details><summary><i>Expand</i></summary>
 
 You can download it from this GitHub repository by selecting `Code` -> `Download ZIP`, or run the command `git clone git@github.com:nadia-paz/cdc_diabetis.git`
-`cd cdc_diabetis` to move to the project's directory.
+`cd cdc_diabetis` to move to the project's directory. <br>
+[`git clone`](https://www.atlassian.com/git/tutorials/setting-up-a-repository/git-clone)
 
 </details>
 
 <h2 style="color:#777;">4. Virtual environtments</h2>
+<details><summary><i>Expand</i></summary>
 
 #### Anaconda
 
 The project is made using Python 3.9.18 on Anaconda. To create the same virtual environment with Anaconda please refer to the file `conda_requirements.txt`. Install Anaconda or Mamba if you don't have it yet and run the following command in your terminal from the project's directory:
 
-```
+```bash
 conda create --name <env_name> --file conda_requirements.txt
 ```
 After installing the environment activate it with the command:
-```
+```bash
 conda activate <env_name>
 ```
 and start `jupyter notebook`
 
+To deactivate the environment: `conda deactivate`
+
 #### `venv`
-If you don't have Anaconda or don't want to use it, you can install required dependencies using Python's `venv`. They are located in the `requirements.txt` file. In the project's directory in your terminal run the command
+If you don't have Anaconda or don't want to use it, you can install required dependencies using Python's `venv`. They are located in the `venv_requirements.txt` file. 
 
+__Step 1: Install Python 3.9__
+
+Check your Python's version in your terminal: `python --version` or `python3 --version`. If it is different from the Python 3.9.*, install Python 3.9 on your computer according with your operation system instructions. For Linux `sudo apt-get install python3.9`, for Mac `brew install python@3.9`, for Windows manually download and install the required Python's version. 
+
+__Step 2: Locate the path of your Python3.9__
+
+Run in your terminal `which python3.9`. Copy the output. It is your `path_to_python`
+
+__Step 3: Create a virtual environment__
+1. In your terminal move to the projects folder `cd <path_to_the_project>`.  
+2. Create the environment. In your terminal run the command
+
+```bash
+<path_to_python> -m vevn <env_name>
 ```
+__Step 4: Activate the virtual environment__
 
+In terminal run:
+```bash
+source <env_name>/bin/activate
 ```
+__Step 5: Install dependendencies__
 
-If you need just ts
+Make sure that you are in the project's directory and you have the `venv_requirements.txt` file in it. Run the following command in the terminal:
 
+```bash
+python -m pip install -r venv_requirements.txt
+```
+Now you can use the project. To deactivate the virtual environment simpy run `deactivate` in the terminal.
+
+#### Confirm virual environment from `jupyter notebook`
+In the code cell run:
+```python
+import os
+print(os.system("which python"))
+print(os.system("python --version"))
+```
+You should see the name of your environment in the output. If you don't, confirm the installation of the environment to the iPython Kernell. In the terminal window run:
+```bash
+ipython kernel install --user --name=<env_name>
+```
+</details>
 <h2 style="color:#777;">4. </h2>
 
