@@ -75,14 +75,15 @@ You can download it from this GitHub repository by selecting `Code` -> `Download
 
 #### Anaconda
 
-The project is made using Python 3.9.18 on Anaconda. To create the same virtual environment with Anaconda please refer to the file `conda_requirements.txt`. Install Anaconda or Mamba if you don't have it yet and run the following command in your terminal from the project's directory:
+The project is made using Python 3.9.18 on Anaconda. To create the same virtual environment with Anaconda please refer to the file `environment.yml`. Install Anaconda or Mamba if you don't have it yet and run the following command in your terminal from the project's directory:
 
 ```bash
-conda create --name <env_name> --file conda_requirements.txt
+conda env create -f environment.yml
 ```
-After installing the environment activate it with the command:
+The name of the environment already is specified in the file. After installing the environment activate it with the command:
+
 ```bash
-conda activate <env_name>
+conda activate diabetes_project
 ```
 and start `jupyter notebook`
 
@@ -133,5 +134,6 @@ You should see the name of your environment in the output. If you don't, confirm
 ipython kernel install --user --name=<env_name>
 ```
 </details>
+
 <h2 style="color:#777;">4. </h2>
 
