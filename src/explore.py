@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import seaborn as sns
 
-from matplotlib.ticker import PercentFormatter
+from matplotlib.ticker import PercentFormatter, FormatStrFormatter
 
 from scipy import stats 
 from sklearn.metrics import mutual_info_score
@@ -119,6 +119,20 @@ def sick_days_viz_bins(healthy: pd.DataFrame, diabetes: pd.DataFrame, bins: int 
     axes[1].yaxis.set_major_formatter(PercentFormatter(1))
     plt.show()
 
+def age_viz(healthy: pd.DataFrame, diabetes: pd.DataFrame):
+    ''' 
+
+    '''
+    plt.figure(figsize=(12, 4))
+    ax = sns.histplot(data=healthy, x='Age', stat='percent', color=c1, label="Healthy", alpha = 0.5)
+    ax = sns.histplot(data=diabetes, x='Age', stat='percent', color=c2, label="Diabetes", alpha=0.5)
+    #ax.set_xticklabels(rotation=30)
+    plt.legend()
+    plt.xticks(rotation=30, ha='right')
+    #ax.tick_params(axis='x', rotation=30)
+    plt.title('Age distribution in percentege')
+    plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
+    plt.show()
 
 def calculate_mi(series):
     '''
