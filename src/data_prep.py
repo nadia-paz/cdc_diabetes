@@ -6,10 +6,15 @@ from ucimlrepo import fetch_ucirepo
 from sklearn.model_selection import train_test_split
 
 seed = 2912
-categorical = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
+cat1 = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
        'HeartDiseaseorAttack', 'PhysActivity', 'Fruits', 'Veggies',
        'HvyAlcoholConsump', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth',
        'MentHlth', 'PhysHlth', 'DiffWalk', 'Sex', 'Age', 'Education', 'Income']
+
+categorical = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
+       'HeartDiseaseorAttack', 'PhysActivity', 'Fruits', 'Veggies',
+       'HvyAlcoholConsump', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth',
+       'DiffWalk', 'Sex', 'Age', 'Education', 'Income']
 
 def acquire():
     ''' 
@@ -49,14 +54,14 @@ def acquire():
     # change data type from int into categorical
     for col in categorical:
         df[col] = pd.Categorical(df[col])
-    df.Diabetes_binary = pd.Categorical(df.Diabetes_binary)
+    #df.Diabetes_binary = pd.Categorical(df.Diabetes_binary)
 
     # rename the target variable
-    df.rename({'Diabetes_binary':'Diabetes'}, axis=1, inplace=True)
+    #df.rename({'Diabetes_binary':'Diabetes'}, axis=1, inplace=True)
 
     return df
 
-def replace_values(df: pd.DataFrame):
+def replace_values(full_train: pd.DataFrame):
     ''' 
     Prepares data for exploration by renaming values of categorical variables from numerical to meaningful words.
     Parameters:
@@ -101,7 +106,7 @@ def replace_values(df: pd.DataFrame):
         7: "$50K - $75K",
         8: "more than $85K"
     }
-    df = df.copy()
+    df = full_train.copy()
     # replace values
     df.HighBP = np.where(df.HighBP == 0, "Normal Blood Pressure", 'High Blood Pressure')
     df.HighChol = np.where(df.HighChol == 0, "Normal Cholesterol", 'High Cholesterol')
@@ -120,14 +125,14 @@ def replace_values(df: pd.DataFrame):
     df.Age = df.Age.replace(age_dict)
     df.Education = df.Education.replace(edu_dict)
     df.Income = df.Income.replace(income_dict)
-    df.Diabetes = np.where(df.Diabetes == 0, 'No Diabetes', 'Diabetes')
+    df["Diabetes"] = np.where(df.Diabetes_binary == 0, 'No Diabetes', 'Diabetes')
 
     return df
 
 def split_data(df, explore=False):
     df_full_train, df_test = train_test_split(df, test_size=0.2, random_state=seed)
     if explore:
-        df_explore = replace_values(df_full_train)
+        df_explore = replace_values(df_full_train).reset_index(drop=True)
         return df_explore
     else:
         df_train, df_val = train_test_split(df_full_train, test_size=0.25, random_state=seed)
