@@ -5,6 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 import seaborn as sns
 
+from matplotlib.ticker import PercentFormatter
+
 from scipy import stats 
 from sklearn.metrics import mutual_info_score
 
@@ -34,7 +36,7 @@ def diabetes_piechart(df: pd.DataFrame, target: str):
     values = df[target].value_counts().to_list()
     diabetes_labels = df[target].value_counts().index.to_list()
     # create the pie chart
-    plt.figure(figsize=(5, 5))
+    plt.figure(figsize=(4, 4))
     plt.pie(values, labels=diabetes_labels, explode=[0.01, 0.02], 
             colors=[c1, c2], autopct=autopct_format(values),
             shadow=False)
@@ -66,3 +68,35 @@ def bmi_piechart(under: pd.DataFrame, normal: pd.DataFrame, over: pd.DataFrame):
             colors=[c1, c2], autopct=autopct_format(values))
         plt.title(j[1])
     plt.show()
+
+def sick_days_viz(healthy: pd.DataFrame, diabetes: pd.DataFrame):
+    ''' 
+    Vizualize the number of poor menthal and physical health among respondents with and without diabetes 
+    '''
+    # length of data sets. we need it to convert values in histograms from absolute to relative
+    lh, ld = len(healthy), len(diabetes)
+
+    #plt.figure(figsize = (12, 4))
+    # left plot -> mental health
+    #plt.subplot(121)
+    fig, axes = plt.subplots(1, 2, figsize = (12, 4))
+    plt.suptitle("Days of poor health per month", fontsize = 15)
+    axes[0].set_title('Mental', fontsize = 15)
+    axes[0].hist(healthy.MentHlth, color=c1, alpha=0.9, ec='black', label='Healthy', weights=np.ones(lh) / lh)
+    axes[0].hist(diabetes.MentHlth, color=c2, alpha=0.9, ec = 'black', label = 'Diabetes', weights=np.ones(ld) / ld)
+    axes[0].legend(loc='upper right', fontsize=15)
+    axes[0].yaxis.set_major_formatter(PercentFormatter(1))
+    #plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+    axes[1].set_title('Physical', fontsize = 15)
+    axes[1].hist(healthy.PhysHlth, color=c1, alpha=0.9, ec='black', label='Healthy', weights=np.ones(lh) / lh)
+    axes[1].hist(diabetes.PhysHlth, color=c2, alpha=0.9, ec = 'black', label = 'Diabetes', weights=np.ones(ld) / ld)
+    axes[1].legend(loc='upper right', fontsize=15)
+    axes[1].yaxis.set_major_formatter(PercentFormatter(1))
+    plt.show()
+
+
+def calculate_mi(series):
+    '''
+    check the mutual info score
+    '''
+    return mutual_info_score(series, df_explore.Diabetes_binary)
