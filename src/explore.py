@@ -94,6 +94,31 @@ def sick_days_viz(healthy: pd.DataFrame, diabetes: pd.DataFrame):
     axes[1].yaxis.set_major_formatter(PercentFormatter(1))
     plt.show()
 
+def sick_days_viz_bins(healthy: pd.DataFrame, diabetes: pd.DataFrame, bins: int = 3):
+    ''' 
+    Vizualize the number of poor menthal and physical health among respondents with and without diabetes 
+    '''
+    # length of data sets. we need it to convert values in histograms from absolute to relative
+    lh, ld = len(healthy), len(diabetes)
+
+    #plt.figure(figsize = (12, 4))
+    # left plot -> mental health
+    #plt.subplot(121)
+    fig, axes = plt.subplots(1, 2, figsize = (12, 4))
+    plt.suptitle("Days of poor health per month", fontsize = 15)
+    axes[0].set_title('Mental', fontsize = 15)
+    axes[0].hist(healthy.MentHlth, bins=bins, color=c1, alpha=0.9, ec='black', label='Healthy', weights=np.ones(lh) / lh)
+    axes[0].hist(diabetes.MentHlth, bins=bins, color=c2, alpha=0.9, ec = 'black', label = 'Diabetes', weights=np.ones(ld) / ld)
+    axes[0].legend(loc='upper right', fontsize=15)
+    axes[0].yaxis.set_major_formatter(PercentFormatter(1))
+    #plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+    axes[1].set_title('Physical', fontsize = 15)
+    axes[1].hist(healthy.PhysHlth, bins=bins, color=c1, alpha=0.9, ec='black', label='Healthy', weights=np.ones(lh) / lh)
+    axes[1].hist(diabetes.PhysHlth, bins=bins, color=c2, alpha=0.9, ec = 'black', label = 'Diabetes', weights=np.ones(ld) / ld)
+    axes[1].legend(loc='upper right', fontsize=15)
+    axes[1].yaxis.set_major_formatter(PercentFormatter(1))
+    plt.show()
+
 
 def calculate_mi(series):
     '''
