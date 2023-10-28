@@ -6,15 +6,13 @@ from ucimlrepo import fetch_ucirepo
 from sklearn.model_selection import train_test_split
 
 seed = 2912
-cat1 = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
-       'HeartDiseaseorAttack', 'PhysActivity', 'Fruits', 'Veggies',
-       'HvyAlcoholConsump', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth',
-       'MentHlth', 'PhysHlth', 'DiffWalk', 'Sex', 'Age', 'Education', 'Income']
+# categorical data
+ordinal = ['GenHlth', 'MentHlth', 'PhysHlth', 'Age', 'Education', 'Income']
 
-categorical = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
+nominal = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
        'HeartDiseaseorAttack', 'PhysActivity', 'Fruits', 'Veggies',
-       'HvyAlcoholConsump', 'AnyHealthcare', 'NoDocbcCost', 'GenHlth',
-       'DiffWalk', 'Sex', 'Age', 'Education', 'Income']
+       'HvyAlcoholConsump', 'AnyHealthcare', 'NoDocbcCost',
+       'DiffWalk', 'Sex']
 
 def acquire():
     ''' 
@@ -52,8 +50,8 @@ def acquire():
     df = df.drop_duplicates()
 
     # change data type from int into categorical
-    for col in categorical:
-        df[col] = pd.Categorical(df[col])
+    # for col in categorical:
+    #     df[col] = pd.Categorical(df[col])
     #df.Diabetes_binary = pd.Categorical(df.Diabetes_binary)
 
     # rename the target variable
