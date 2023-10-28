@@ -49,9 +49,7 @@ def acquire():
     # drop 24206 duplicates
     df = df.drop_duplicates()
 
-    # change data type from int into categorical
-    # for col in categorical:
-    #     df[col] = pd.Categorical(df[col])
+
     #df.Diabetes_binary = pd.Categorical(df.Diabetes_binary)
 
     # rename the target variable
@@ -127,7 +125,31 @@ def replace_values(full_train: pd.DataFrame):
 
     return df
 
-def split_data(df, explore=False):
+def clean_data(df: pd.DataFrame):
+    ''' 
+    Drop the column with low mutual info score.  
+    '''
+    df_new = df.copy()
+    # drop columns
+    df_new = df_new.drop(['Veggies', 'Sex', 'Fruits', 'AnyHealthcare', 'NoDocbcCost'], axis=1)
+    # reduce number of ordered categories down to three, automatically saves as a category type
+    df_new.MentHlth = pd.cut(df_new.MentHlth, bins=3, labels=['low', 'medium', 'high'])
+    df_new.PhysHlth = pd.cut(df_new.PhysHlth, bins=3, labels=['low', 'medium', 'high'])
+
+    # turn ordinar data into categories
+    ord = ['GenHlth', 'Age', 'Education', 'Income']
+    for col in ord:
+        df_new[col] = pd.Categorical(df_new[col]).as_ordered()
+    # turn binary data and BMI to uint8 (0 to 255)
+    binary = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
+       'HeartDiseaseorAttack', 'PhysActivity', 'HvyAlcoholConsump', 
+       'DiffWalk', 'Diabetes_binary']
+    for col in binary + ['BMI']:
+        df_new[col] = df_new[col].astype('uint8')
+
+    return df_new
+
+def split_data(df, explore=False, get_full_train=False, target = 'Diabetes_binary'):
     df_full_train, df_test = train_test_split(df, test_size=0.2, random_state=seed)
     if explore:
         df_explore = replace_values(df_full_train).reset_index(drop=True)
@@ -135,17 +157,24 @@ def split_data(df, explore=False):
     else:
         df_train, df_val = train_test_split(df_full_train, test_size=0.25, random_state=seed)
 
-        df_full_train = df_full_train.reset_index(drop=True)
+        #df_full_train = df_full_train.reset_index(drop=True)
         df_train = df_train.reset_index(drop=True)
         df_val = df_val.reset_index(drop=True)
         df_test = df_test.reset_index(drop=True)
 
-        y_train = (df_train.status == 'default').astype('uint8').values
-        y_val = (df_val.status == 'default').astype('uint8').values
-        y_test = (df_test.status == 'default').astype('uint8').values
+        # clean data
+        # df_full_train = clean_data(df_full_train)
+        df_train = clean_data(df_train)
+        df_val = clean_data(df_val)
+        df_test = clean_data(df_test)
 
-        del df_train['status']
-        del df_val['status']
-        del df_test['status']
+        y_train = df_train[target].values
+        y_val = df_val[target].values
+        y_test = df_test[target].values
+
+        del df_train[target]
+        del df_val[target]
+        del df_test[target]
+
         return df_train, df_val, df_test, y_train, y_val, y_test
 
