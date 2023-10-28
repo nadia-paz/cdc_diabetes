@@ -17,6 +17,9 @@ import src.data_prep as dp
 c1 = sns.color_palette('Accent')[0]
 c2 = sns.color_palette('Accent')[1]
 
+# set alpha value for stat tests, 0.01 for 99% confidence level
+alpha = 0.01 
+
 def autopct_format(values):
     '''
     the function accept value_counts from outcome_type
@@ -130,12 +133,60 @@ def age_viz(healthy: pd.DataFrame, diabetes: pd.DataFrame):
     plt.legend()
     plt.xticks(rotation=30, ha='right')
     #ax.tick_params(axis='x', rotation=30)
-    plt.title('Age distribution in percentege')
+    plt.title('Age distribution')
     plt.gca().yaxis.set_major_formatter(FormatStrFormatter('%.1f%%'))
     plt.show()
 
-def calculate_mi(series):
+############### STATISTICS ###############
+
+
+def get_p_values(df: pd.DataFrame, cat_vars: list[str], target:str = 'Diabetes_binary', alpha:float = alpha):
     '''
-    check the mutual info score
+    Performs Chi-squared test on categorical features of the dataframe.
+    Parameters:
+    df: data frame
+    cat_vars: list of strings with names of categorical columns
+    alpha: float, alpha value, default 0.1 for confidence interval 99%
+    Returns a data frame with p_values of all categorical variables and their significance result
     '''
-    return mutual_info_score(series, df_explore.Diabetes_binary)
+
+    #dictionary to hold names of the column and a p_value assotiated with it
+    p_v = {}
+
+    #for every column in category variables run a chi2 test
+    for col in cat_vars:
+        #create a crosstable
+        observed = pd.crosstab(df[col], df[target])
+        #run a chi squared test fot categorical data
+        test = stats.chi2_contingency(observed)
+        p_value = test[1].round(3)
+        #add the result to the dictionary
+        p_v[col] = p_value.round(3)
+        
+        #transform a dictionary to Series and then to Data Frame
+        p_values = pd.Series(p_v).reset_index()
+        p_values.rename(columns = {'index':'Feature', 0:'P_value'}, inplace = True)
+        p_values = p_values.sort_values(by='P_value')
+
+        #add the column that shows if the result is significant
+        p_values['is_significant'] = p_values['P_value'] < alpha
+    
+    return p_values
+
+def stat_categorical(df, target):
+    ''' 
+
+    '''
+
+    # pull categorical values both nominal and ordinal
+    ordinal = dp.ordinal
+    nominal = dp.nominal
+    categorical = nominal + ordinal
+
+    # calculate mutual info scores and p_values
+    mi_score = df[categorical].apply(lambda x: mutual_info_score(x, df[target]))
+    p_values = get_p_values(df, categorical, target).set_index('Feature')
+
+    return pd.concat([mi_score, p_values], axis = 1).rename({0:'mi'}, axis=1).sort_values(
+        by='mi', ascending=False)
+
