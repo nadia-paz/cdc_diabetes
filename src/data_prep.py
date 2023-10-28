@@ -4,6 +4,7 @@ import os
 from ucimlrepo import fetch_ucirepo 
 
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
 
 seed = 2912
 # categorical data
@@ -13,6 +14,14 @@ nominal = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
        'HeartDiseaseorAttack', 'PhysActivity', 'Fruits', 'Veggies',
        'HvyAlcoholConsump', 'AnyHealthcare', 'NoDocbcCost',
        'DiffWalk', 'Sex']
+
+# columns for preprocessing and modeling
+binary = ['HighBP', 'HighChol', 'CholCheck',  'Smoker', 'Stroke',
+       'HeartDiseaseorAttack', 'PhysActivity', 'HvyAlcoholConsump', 'DiffWalk']
+ordinal_cat = ['MentHlth', 'PhysHlth']
+ordinal_num = ['GenHlth', 'Age', 'Education', 'Income']
+numerical = ['BMI']
+features = binary + ordinal_cat + ordinal_num + numerical
 
 def acquire():
     ''' 
@@ -177,4 +186,33 @@ def split_data(df, explore=False, get_full_train=False, target = 'Diabetes_binar
         del df_test[target]
 
         return df_train, df_val, df_test, y_train, y_val, y_test
+
+def get_X(train, validate, test):
+    ''' 
+
+    '''
+    # create a one hot encoder that drops the first value, so 1,2,3 encodes as 00, 01, 10
+    ohe = OneHotEncoder(handle_unknown='error', drop='first', sparse=False)
+
+    # fit transform train
+    X_train = np.concatenate([
+        train[binary],
+        ohe.fit_transform(train[ordinal_cat]).astype('uint8'),
+        train[ordinal_num + numerical].astype('uint8')
+    ], axis=1)
+
+    # transform validate and test
+    X_validate = np.concatenate([
+        validate[binary],
+        ohe.transform(validate[ordinal_cat]).astype('uint8'),
+        validate[ordinal_num + numerical].astype('uint8')
+    ], axis=1)
+
+    X_test = np.concatenate([
+        test[binary],
+        ohe.transform(test[ordinal_cat]).astype('uint8'),
+        test[ordinal_num + numerical].astype('uint8')
+    ], axis=1)
+
+    return X_train, X_validate, X_test
 
