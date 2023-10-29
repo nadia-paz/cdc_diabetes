@@ -126,9 +126,11 @@ def age_viz(healthy: pd.DataFrame, diabetes: pd.DataFrame):
     ''' 
 
     '''
+    h = pd.Categorical(healthy.Age, ordered=True)
+    d = pd.Categorical(diabetes.Age, ordered=True)
     plt.figure(figsize=(12, 4))
-    ax = sns.histplot(data=healthy, x='Age', stat='percent', color=c1, label="Healthy", alpha = 0.5)
-    ax = sns.histplot(data=diabetes, x='Age', stat='percent', color=c2, label="Diabetes", alpha=0.5)
+    ax = sns.histplot(x=h, stat='percent', color=c1, label="Healthy", alpha = 0.5)
+    ax = sns.histplot(x=d, stat='percent',  color=c2, label="Diabetes", alpha=0.5)
     #ax.set_xticklabels(rotation=30)
     plt.legend()
     plt.xticks(rotation=30, ha='right')
