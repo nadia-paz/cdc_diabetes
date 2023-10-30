@@ -158,6 +158,28 @@ def clean_data(df: pd.DataFrame):
 
     return df_new
 
+def change_bmi(df: pd.DataFrame):
+    ''' 
+    1. Changes BMI column to 2 columns: 
+    BMI_under -> if BMI <= 18 -> 1, else 0
+    BMI_over -> if BMI >= 25 -> 1, else 0
+    Normal BMI gets 0-0 from both columns created
+    2. Drops the original BMI column.
+
+    Returns: 
+        new data frame with updated columns
+    '''
+    df_new = df.copy()
+
+    # don't use np.where not to forget other ways :)
+    df_new["BMI_under"] = df_new.BMI.map(lambda x: 1 if x <= 18 else 0)
+    df_new = df_new.assign(BMI_over = df_new.BMI.apply(lambda x: 1 if x >= 25 else 0))
+
+    # drop the column BMI
+    df_new.drop("BMI", axis=1, inplace=True)
+
+    return df_new
+
 def split_data(df, explore=False, get_full_train=False, target = 'Diabetes_binary'):
     df_full_train, df_test = train_test_split(df, test_size=0.2, random_state=seed)
     if explore:
@@ -199,6 +221,35 @@ def get_X(train, validate, test):
         train[binary],
         ohe.fit_transform(train[ordinal_cat]).astype('uint8'),
         train[ordinal_num + numerical].astype('uint8')
+    ], axis=1)
+
+    # transform validate and test
+    X_validate = np.concatenate([
+        validate[binary],
+        ohe.transform(validate[ordinal_cat]).astype('uint8'),
+        validate[ordinal_num + numerical].astype('uint8')
+    ], axis=1)
+
+    X_test = np.concatenate([
+        test[binary],
+        ohe.transform(test[ordinal_cat]).astype('uint8'),
+        test[ordinal_num + numerical].astype('uint8')
+    ], axis=1)
+
+    return X_train, X_validate, X_test
+
+def get_X_ohe(train, validate, test):
+    ''' 
+
+    '''
+    # create a one hot encoder that drops the first value, so 1,2,3 encodes as 00, 01, 10
+    ohe = OneHotEncoder(handle_unknown='error', drop='first', sparse=False)
+
+    # fit transform train
+    X_train = np.concatenate([
+        train[binary],
+        ohe.fit_transform(train[ordinal_cat + ordinal_num]).astype('uint8'),
+        train[ + numerical].astype('uint8')
     ], axis=1)
 
     # transform validate and test
