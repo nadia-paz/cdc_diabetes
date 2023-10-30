@@ -46,6 +46,22 @@ def diabetes_piechart(df: pd.DataFrame, target: str):
     plt.title('Diabetes among respondents')
     plt.show()
 
+def diabetes_piechart_ytrain(y_train):
+    '''
+    Plot the pie chart with diabetes % in the data
+    '''
+    # create values and labels for the pie chart
+    values = pd.Series(y_train).value_counts().to_list()
+    diabetes_labels = pd.Series(y_train).value_counts().index.to_list()
+    # create the pie chart
+    plt.figure(figsize=(4, 4))
+    plt.pie(values, labels=diabetes_labels, explode=[0.01, 0.02], 
+            colors=[c1, c2], autopct=autopct_format(values),
+            shadow=False)
+    plt.title('Diabetes among respondents')
+    plt.show()
+
+
 def bmi_distribution(healthy: pd.DataFrame, diabetes: pd.DataFrame):
     ''' 
     Plot 2 histograms for BMI distribution among those who has diabetes and don't
