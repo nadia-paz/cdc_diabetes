@@ -219,7 +219,27 @@ def change_bmi(df: pd.DataFrame):
 
     return df_new
 
-def split_data(df, explore=False, get_full_train=False, target = 'Diabetes_binary'):
+def split_data(df, explore=False, balance=False, replace=False, target = 'Diabetes_binary'):
+    '''
+    Split data for exploration and machine learning models.
+    The function applies data manipulations according to the boolean parameters. 
+    Parameters:
+        df: pd.DataFrame to split
+        explore: bool. 
+            If True -> remove test data and replace numerical values with text.
+            If False -> split data into train, validation and test data sets 
+        balance: bool. 
+            If True -> balance the data set prior to split
+            If False -> the data stays unbalanced
+        replace: bool. Parameter for balacining data.
+            If True -> balance data with upsampling
+            If False -> balance data with downsampling
+        target: str, target variable.
+
+    '''
+
+    if balance:
+        df = balance_data(df, replace=replace)
     df_full_train, df_test = train_test_split(df, test_size=0.2, random_state=seed)
     if explore:
         df_explore = replace_values(df_full_train).reset_index(drop=True)
@@ -313,4 +333,3 @@ def get_X_ohe(train, validate, test):
     ], axis=1)
 
     return X_train, X_validate, X_test
-
