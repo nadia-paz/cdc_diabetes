@@ -5,6 +5,7 @@ from ucimlrepo import fetch_ucirepo
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.utils import resample
 
 seed = 2912
 # categorical data
@@ -157,6 +158,44 @@ def clean_data(df: pd.DataFrame):
         df_new[col] = df_new[col].astype('uint8')
 
     return df_new
+
+def balance_data(df, target='Diabetes_binary', replace=False):
+    '''
+    Balance data sets. Binary classification only. By deafault -> downsampling.
+    Parameters:
+        df: pandas data frame to balance
+        replace: boolean. 
+        If True the functions makes upsampling by performing replacement with repetitions (sampling with replacement)
+        If False the function makes downsampling, no repetitions
+    Returns:
+        balance data frame with equal number of people with and without diabetes
+    '''
+    # get x and y. x - the value of majority, y - the value of minority
+    x = df[target].value_counts().index[0]
+    y = df[target].value_counts().index[1]
+    # Separate majority and minority classes
+    majority = df[df[target] == x] # majority
+    minority = df[df[target] == y] # minority
+    # for upscaling
+    if replace:
+        # Upscale the minority class
+        sampled_data = resample(minority, 
+                            replace=replace,     # sample with replacement
+                            n_samples=len(majority),    # to match majority class
+                            random_state=seed) # reproducible results
+        df_sampled = pd.concat([majority, sampled_data])
+    # for downscaling
+    else:
+        # Downsample majority class
+        sampled_data = resample(majority, 
+                            replace=False,    # sample without replacement
+                            n_samples=len(minority), # to match minority class
+                            random_state=seed) # reproducible results
+    
+        # Combine minority class with downsampled majority class
+        df_sampled = pd.concat([sampled_data, minority])
+
+    return df_sampled
 
 def change_bmi(df: pd.DataFrame):
     ''' 
