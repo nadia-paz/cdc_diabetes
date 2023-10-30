@@ -211,7 +211,8 @@ def split_data(df, explore=False, get_full_train=False, target = 'Diabetes_binar
 
 def get_X(train, validate, test):
     ''' 
-
+    Apply One Hot Encoder to ordinal_cat = ['MentHlth', 'PhysHlth'] only. 
+    The rest of ordinal categorical columns stay numerical with their range of values from 1 to n
     '''
     # create a one hot encoder that drops the first value, so 1,2,3 encodes as 00, 01, 10
     ohe = OneHotEncoder(handle_unknown='error', drop='first', sparse=False)
@@ -240,29 +241,36 @@ def get_X(train, validate, test):
 
 def get_X_ohe(train, validate, test):
     ''' 
-
+    Apply Ohe Hot Encoder to all ordinal categorical columns in train, validate and test sets.
     '''
     # create a one hot encoder that drops the first value, so 1,2,3 encodes as 00, 01, 10
     ohe = OneHotEncoder(handle_unknown='error', drop='first', sparse=False)
+
+    # transform BMI to categorical variable
+    train = change_bmi(train)
+    validate = change_bmi(validate)
+    test = change_bmi(test)
+
+    bmi = ["BMI_under", "BMI_over"]
 
     # fit transform train
     X_train = np.concatenate([
         train[binary],
         ohe.fit_transform(train[ordinal_cat + ordinal_num]).astype('uint8'),
-        train[ + numerical].astype('uint8')
+        train[bmi].astype('uint8')
     ], axis=1)
 
     # transform validate and test
     X_validate = np.concatenate([
         validate[binary],
-        ohe.transform(validate[ordinal_cat]).astype('uint8'),
-        validate[ordinal_num + numerical].astype('uint8')
+        ohe.transform(validate[ordinal_cat + ordinal_num]).astype('uint8'),
+        validate[bmi].astype('uint8')
     ], axis=1)
 
     X_test = np.concatenate([
         test[binary],
-        ohe.transform(test[ordinal_cat]).astype('uint8'),
-        test[ordinal_num + numerical].astype('uint8')
+        ohe.transform(test[ordinal_cat + ordinal_num]).astype('uint8'),
+        test[bmi].astype('uint8')
     ], axis=1)
 
     return X_train, X_validate, X_test
