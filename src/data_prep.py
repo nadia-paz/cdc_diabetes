@@ -22,7 +22,6 @@ binary = ['HighBP', 'HighChol', 'CholCheck',  'Smoker', 'Stroke',
 ordinal_cat = ['MentHlth', 'PhysHlth']
 ordinal_num = ['GenHlth', 'Age', 'Education', 'Income']
 numerical = ['BMI']
-features = binary + ordinal_cat + ordinal_num + numerical
 
 def acquire():
     ''' 
@@ -298,7 +297,7 @@ def get_X(train, validate, test):
 
     return X_train, X_validate, X_test
 
-def get_X_ohe(train, validate, test):
+def get_X_ohe(train, validate, test, get_features=False):
     ''' 
     Apply Ohe Hot Encoder to all ordinal categorical columns in train, validate and test sets.
     '''
@@ -331,5 +330,10 @@ def get_X_ohe(train, validate, test):
         ohe.transform(test[ordinal_cat + ordinal_num]).astype('uint8'),
         test[bmi].astype('uint8')
     ], axis=1)
-
-    return X_train, X_validate, X_test
+    # pass the list of column names to get names not x0_low, x0_medium, x1_low, x2_medium etc
+    ohe_features = ohe.get_feature_names(ordinal_cat + ordinal_num)
+    features = binary + list(ohe_features) + bmi
+    if get_features:
+        return features
+    else:
+        return X_train, X_validate, X_test
