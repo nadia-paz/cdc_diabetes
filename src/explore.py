@@ -53,6 +53,7 @@ def diabetes_piechart_ytrain(y_train):
     # create values and labels for the pie chart
     values = pd.Series(y_train).value_counts().to_list()
     diabetes_labels = pd.Series(y_train).value_counts().index.to_list()
+    diabetes_labels = ["Diabetes" if x==1 else "No diabetes" for x in diabetes_labels]
     # create the pie chart
     plt.figure(figsize=(4, 4))
     plt.pie(values, labels=diabetes_labels, explode=[0.01, 0.02], 
