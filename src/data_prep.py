@@ -4,7 +4,7 @@ import os
 from ucimlrepo import fetch_ucirepo 
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
 from sklearn.utils import resample
 
 seed = 2912
@@ -22,6 +22,7 @@ binary = ['HighBP', 'HighChol', 'CholCheck',  'Smoker', 'Stroke',
 ordinal_cat = ['MentHlth', 'PhysHlth']
 ordinal_num = ['GenHlth', 'Age', 'Education', 'Income']
 numerical = ['BMI']
+bmi = ["BMI_under", "BMI_over"]
 
 def acquire():
     ''' 
@@ -68,7 +69,8 @@ def acquire():
 
 def replace_values(full_train: pd.DataFrame):
     ''' 
-    Prepares data for exploration by renaming values of categorical variables from numerical to meaningful words.
+    Prepares data for exploration by renaming values of categorical variables 
+    from numerical to meaningful words.
     Parameters:
         df: pandas data frame
     Returns:
@@ -134,27 +136,37 @@ def replace_values(full_train: pd.DataFrame):
 
     return df
 
-def clean_data(df: pd.DataFrame):
+def clean_data(df: pd.DataFrame, single=False):
     ''' 
     Drop the column with low mutual info score.  
     '''
+    def change_values(x, target):
+        conds = [x[target] <= 10, x[target] > 20]
+        choices = ['low', 'high']
+        return np.select(conds, choices, default='medium').astype("object")
+
     df_new = df.copy()
     # drop columns
     df_new = df_new.drop(['Veggies', 'Sex', 'Fruits', 'AnyHealthcare', 'NoDocbcCost'], axis=1)
-    # reduce number of ordered categories down to three, automatically saves as a category type
-    df_new.MentHlth = pd.cut(df_new.MentHlth, bins=3, labels=['low', 'medium', 'high'])
-    df_new.PhysHlth = pd.cut(df_new.PhysHlth, bins=3, labels=['low', 'medium', 'high'])
 
-    # turn ordinar data into categories
-    ord = ['GenHlth', 'Age', 'Education', 'Income']
-    for col in ord:
-        df_new[col] = pd.Categorical(df_new[col]).as_ordered()
-    # turn binary data and BMI to uint8 (0 to 255)
-    binary = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
-       'HeartDiseaseorAttack', 'PhysActivity', 'HvyAlcoholConsump', 
-       'DiffWalk', 'Diabetes_binary']
-    for col in binary + ['BMI']:
-        df_new[col] = df_new[col].astype('uint8')
+    if not single:
+        # reduce number of ordered categories down to three, automatically saves as a category type
+        df_new.MentHlth = pd.cut(df_new.MentHlth, bins=3, labels=['low', 'medium', 'high'])
+        df_new.PhysHlth = pd.cut(df_new.PhysHlth, bins=3, labels=['low', 'medium', 'high'])
+
+        # turn ordinar data into categories
+        ord = ['GenHlth', 'Age', 'Education', 'Income']
+        for col in ord:
+            df_new[col] = pd.Categorical(df_new[col]).as_ordered()
+        # turn binary data and BMI to uint8 (0 to 255)
+        binary = ['HighBP', 'HighChol', 'CholCheck', 'Smoker', 'Stroke',
+        'HeartDiseaseorAttack', 'PhysActivity', 'HvyAlcoholConsump', 
+        'DiffWalk', 'Diabetes_binary']
+        for col in binary + ['BMI']:
+            df_new[col] = df_new[col].astype('uint8')
+    else:
+        df_new.MentHlth = change_values(df_new, 'MentHlth')
+        df_new.PhysHlth = change_values(df_new, 'PhysHlth')
 
     return df_new
 
@@ -218,7 +230,7 @@ def change_bmi(df: pd.DataFrame):
 
     return df_new
 
-def split_data(df, explore=False, balance=False, replace=False, target = 'Diabetes_binary'):
+def split_data(df, explore=False, balance=False, replace=False, full_train=False, target = 'Diabetes_binary'):
     '''
     Split data for exploration and machine learning models.
     The function applies data manipulations according to the boolean parameters. 
@@ -265,7 +277,14 @@ def split_data(df, explore=False, balance=False, replace=False, target = 'Diabet
         del df_val[target]
         del df_test[target]
 
-        return df_train, df_val, df_test, y_train, y_val, y_test
+        if not full_train:
+            return df_train, df_val, df_test, y_train, y_val, y_test
+        else:
+            X = pd.concat([
+                df_train, df_val
+            ],axis=0).reset_index(drop=True)
+            y = np.concatenate([y_train, y_val], axis=0)
+            return X, df_test,y, y_test
 
 def get_X(train, validate, test):
     ''' 
@@ -297,7 +316,7 @@ def get_X(train, validate, test):
 
     return X_train, X_validate, X_test
 
-def get_X_ohe(train, validate, test, get_features=False):
+def get_X_ohe(train, validate, test=None, get_features=False):
     ''' 
     Apply Ohe Hot Encoder to all ordinal categorical columns in train, validate and test sets.
     '''
@@ -324,7 +343,7 @@ def get_X_ohe(train, validate, test, get_features=False):
         ohe.transform(validate[ordinal_cat + ordinal_num]).astype('uint8'),
         validate[bmi].astype('uint8')
     ], axis=1)
-
+    
     X_test = np.concatenate([
         test[binary],
         ohe.transform(test[ordinal_cat + ordinal_num]).astype('uint8'),
@@ -337,3 +356,29 @@ def get_X_ohe(train, validate, test, get_features=False):
         return features
     else:
         return X_train, X_validate, X_test
+
+def get_ohe(train):
+
+    # ordinal_cat = ['MentHlth', 'PhysHlth']
+    # ordinal_num = ['GenHlth', 'Age', 'Education', 'Income']
+    
+    ohe = OneHotEncoder(handle_unknown='error', drop='first', sparse=False)
+    ohe.fit(train[ordinal_cat + ordinal_num])
+    return ohe
+
+def transform_single(patient: dict, ohe: OneHotEncoder):
+    ''' 
+    '''
+    # binary = ['HighBP', 'HighChol', 'CholCheck',  'Smoker', 'Stroke',
+    #    'HeartDiseaseorAttack', 'PhysActivity', 'HvyAlcoholConsump', 'DiffWalk']
+    # ordinal_cat = ['MentHlth', 'PhysHlth']
+    # ordinal_num = ['GenHlth', 'Age', 'Education', 'Income']
+    # bmi = ["BMI_under", "BMI_over"]
+
+    patient = pd.DataFrame([patient])
+    patient= change_bmi(clean_data(patient, single=True))
+    return np.concatenate([
+        patient[binary],
+        ohe.transform(patient[ordinal_cat + ordinal_num]).astype('uint8'),
+        patient[bmi].astype('uint8')
+        ], axis=1)
