@@ -10,21 +10,22 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
 
     
-def get_report(y_val, y_pred):
+def get_report(y_val, y_pred, threshold=0.5):
     ''' 
     get classification report, remove unneeded information, add auc score
     Return:
         string to pass to print statement
     '''
     # get classification report
-    report = classification_report(y_val, y_pred).split("\n")
+    report = classification_report(y_val, y_pred >= threshold).split("\n")
     # delete lines 2 (report for prediction of zeros) and 4 (empty string)
     del report[2]
     del report[3]
 
     # remove macro avg and weighted avg
     report = report[:-3]
-
+    # insert empty string
+    report.insert(3, "")
     # remove support column
     for i in range(len(report)):
         if len(report[i]) != 0:
