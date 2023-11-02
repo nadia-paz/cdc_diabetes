@@ -65,4 +65,32 @@ def parse_xgb_output(output, df=True):
         return pd.DataFrame(results, columns=columns)
     else:
         return (iterations, train_scores, validations_scores)
-    
+
+def train_model(train, y_train):
+    # train -> already cleaned data, only BMI numerical
+    binary = ['HighBP', 'HighChol', 'CholCheck',  'Smoker', 'Stroke',
+       'HeartDiseaseorAttack', 'PhysActivity', 'HvyAlcoholConsump', 'DiffWalk']
+    ordinal_cat = ['MentHlth', 'PhysHlth']
+    ordinal_num = ['GenHlth', 'Age', 'Education', 'Income']
+    bmi = ["BMI_under", "BMI_over"]
+    # change BMI
+    train["BMI_under"] = train.BMI.map(lambda x: 1 if x <= 18 else 0)
+    train = train.assign(BMI_over = train.BMI.apply(lambda x: 1 if x >= 25 else 0))
+
+    # drop the column BMI
+    train.drop("BMI", axis=1, inplace=True)
+    ohe = OneHotEncoder(handle_unknown='error', drop='first', sparse=False)
+    X = np.concatenate([
+        train[binary],
+        ohe.fit_transform(train[ordinal_cat + ordinal_num]).astype('uint8'),
+        train[bmi].astype('uint8')
+    ], axis=1)
+    rf = RandomForestClassifier(
+        n_estimators=500,
+        max_depth = 10,
+        min_samples_leaf = 10,
+        n_jobs=-1, # speed up the process
+        random_state=dp.seed
+        )
+    rf.fit(X, y_train)
+    return rf, ohe
