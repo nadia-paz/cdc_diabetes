@@ -1,4 +1,5 @@
 flask==3.0.0
+gunicorn==21.2.0
 ipython==8.16.1
 jupyter==1.0.0
 jupyterlab==4.0.6
