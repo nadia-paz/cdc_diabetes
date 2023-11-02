@@ -1,6 +1,7 @@
 import numpy as np 
 import pandas as pd
 
+import src.data_prep as dp
 
 import xgboost as xgb
 from sklearn.tree import DecisionTreeClassifier, export_text, export_graphviz
@@ -8,6 +9,7 @@ from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, reca
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import KFold
+from sklearn.preprocessing import OneHotEncoder
 
     
 def get_report(y_val, y_pred, threshold=0.5):
@@ -66,8 +68,10 @@ def parse_xgb_output(output, df=True):
     else:
         return (iterations, train_scores, validations_scores)
 
-def train_model(train, y_train):
-    # train -> already cleaned data, only BMI numerical
+def train_model(df):
+    # get train and y_train
+    train, _, y_train, _ = dp.split_data(df, balance=True, full_train=True)
+    # columns 
     binary = ['HighBP', 'HighChol', 'CholCheck',  'Smoker', 'Stroke',
        'HeartDiseaseorAttack', 'PhysActivity', 'HvyAlcoholConsump', 'DiffWalk']
     ordinal_cat = ['MentHlth', 'PhysHlth']
@@ -79,6 +83,8 @@ def train_model(train, y_train):
 
     # drop the column BMI
     train.drop("BMI", axis=1, inplace=True)
+
+    # create One Hot Encoder
     ohe = OneHotEncoder(handle_unknown='error', drop='first', sparse=False)
     X = np.concatenate([
         train[binary],
