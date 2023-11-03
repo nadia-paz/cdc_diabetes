@@ -316,7 +316,7 @@ def get_X(train, validate, test):
 
     return X_train, X_validate, X_test
 
-def get_X_ohe(train, validate, test=None, get_features=False):
+def get_X_ohe(train, validate=None, test=None, get_features=False):
     ''' 
     Apply Ohe Hot Encoder to all ordinal categorical columns in train, validate and test sets.
     '''
@@ -325,9 +325,7 @@ def get_X_ohe(train, validate, test=None, get_features=False):
 
     # transform BMI to categorical variable
     train = change_bmi(train)
-    validate = change_bmi(validate)
-    test = change_bmi(test)
-
+    
     bmi = ["BMI_under", "BMI_over"]
 
     # fit transform train
@@ -336,25 +334,32 @@ def get_X_ohe(train, validate, test=None, get_features=False):
         ohe.fit_transform(train[ordinal_cat + ordinal_num]).astype('uint8'),
         train[bmi].astype('uint8')
     ], axis=1)
-
-    # transform validate and test
-    X_validate = np.concatenate([
-        validate[binary],
-        ohe.transform(validate[ordinal_cat + ordinal_num]).astype('uint8'),
-        validate[bmi].astype('uint8')
-    ], axis=1)
-    
-    X_test = np.concatenate([
-        test[binary],
-        ohe.transform(test[ordinal_cat + ordinal_num]).astype('uint8'),
-        test[bmi].astype('uint8')
-    ], axis=1)
-    # pass the list of column names to get names not x0_low, x0_medium, x1_low, x2_medium etc
-    ohe_features = ohe.get_feature_names(ordinal_cat + ordinal_num)
-    features = binary + list(ohe_features) + bmi
     if get_features:
+        # pass the list of column names to get names not x0_low, x0_medium, x1_low, x2_medium etc
+        ohe_features = ohe.get_feature_names(ordinal_cat + ordinal_num)
+        features = binary + list(ohe_features) + bmi
         return features
     else:
+        try:
+            validate = change_bmi(validate)
+            # transform validate and test
+            X_validate = np.concatenate([
+                validate[binary],
+                ohe.transform(validate[ordinal_cat + ordinal_num]).astype('uint8'),
+                validate[bmi].astype('uint8')
+            ], axis=1)
+        except:
+            return X_train
+    
+        try:
+            test = change_bmi(test)
+            X_test = np.concatenate([
+                test[binary],
+                ohe.transform(test[ordinal_cat + ordinal_num]).astype('uint8'),
+                test[bmi].astype('uint8')
+            ], axis=1)
+        except:
+            return X_train, X_validate
         return X_train, X_validate, X_test
 
 def get_ohe(train):
