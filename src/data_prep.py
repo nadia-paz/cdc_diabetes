@@ -4,7 +4,7 @@ import os
 from ucimlrepo import fetch_ucirepo 
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
+from sklearn.preprocessing import OneHotEncoder
 from sklearn.utils import resample
 
 seed = 2912
@@ -387,3 +387,14 @@ def transform_single(patient: dict, ohe: OneHotEncoder):
         ohe.transform(patient[ordinal_cat + ordinal_num]).astype('uint8'),
         patient[bmi].astype('uint8')
         ], axis=1)
+
+rf = RandomForestClassifier(
+    n_estimators=500, 
+    max_depth = 10,
+    min_samples_leaf = 10,
+    n_jobs=-1, # speed up the process
+    random_state=dp.seed
+    )
+rf.fit(X_train, y_train)
+
+# save OneHotEncoder
