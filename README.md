@@ -135,5 +135,65 @@ ipython kernel install --user --name=<env_name>
 ```
 </details>
 
-<h2 style="color:#777;">4. </h2>
+<h2 style="color:#777;">4. Project's files</h2>
+<details><summary><i>Expand</i></summary>
 
+```
+├── data
+│   └── diabetis_data.csv
+├── deployment
+│   ├── Dockerfile
+│   ├── Pipfile
+│   ├── Pipfile.lock
+│   ├── encoder.bin
+│   ├── model.bin
+│   ├── predict.py
+│   ├── test.py
+│   └── test_aws.py
+├── src
+│   ├── data_prep.py
+│   ├── explore.py
+│   ├── model.py
+│   └── transform.py
+├── environment.yml
+├── notebook.ipynb
+├── train.py
+├── use_model.py
+└── venv_requirements.txt
+├── README.md
+```
+Directories:
+- `data`: contains `*.csv` file with the data
+- `deployment`: contains binary files with the model and OneHotEncoder that was fit on the `train` set, files to use the model on Docker, and `test_aws.py` that can be copied anywhere and is used to send requests to the web-zpplication hosted on AWS.
+- `src` contains files that assist data preparation `data_prep.py`, exploration `explore.py`, model tuning `model.py`, and transformation of the single patient from the dictionary into `numpy` array ready to use in the model.
+
+The project's main notebook with step by step exploration, tuning and saving the model is `notebook.ipynb`. The script needed to build the model is in `train.py` file. It contains the code from the notebook and files located in `src` directory, that was used for the model development.
+
+</details>
+
+<h2 style="color:#777;">5. How to use the model</h2>
+
+You can use the model in the virtual environment of the project, on Docker or send a request to the AWS web service (temporary option and will be deprecated soon). Every file that is used for testing  contains a dictionary `patient` with the basic information. If you decide to change that information, please, refer to the Data Dictionary prior to making changes (part 2. __Data Source and Aquisition__ of this `Readme` file).
+
+
+### Virtual environment of the project
+On your terminal move to the project's directory, activate the virtual environment and run the command `python use_model.py` or `python3 use_model.py`.
+
+### Docker
+1. Download and install Docker if you don't have it on your machine.
+2. The virtual environment and deployment files are located in the directory `deployment`.
+2. **Build Docker image**
+    - On your termnial move to the directory "deployment".
+    - Run the following command:
+
+        `docker build -t diabetes-project .`
+
+        This will build the Docker image on your machine.
+4. Next, run Docker image. 
+
+    `docker run --rm -p 2912:2912 diabetes-project`
+
+    This command launches the container with the diabetes prediction model and listens for your requests on localhost port `2912`. To send this request you have to open a new terminal window, move to the deployment directory and run the script `test.py`.
+
+### Web application
+This model is deployed as a web application on AWS Elastic Beanstalk. To use it run `test_aws.py` file located in deployment folder.
