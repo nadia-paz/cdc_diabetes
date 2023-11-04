@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import os
-from ucimlrepo import fetch_ucirepo 
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
@@ -38,7 +37,8 @@ def acquire():
     if os.path.isfile(path_to_file):
         df = pd.read_csv(path_to_file)
     else:
-            # fetch dataset 
+        # fetch dataset 
+        from ucimlrepo import fetch_ucirepo 
         cdc_diabetes_health_indicators = fetch_ucirepo(id=891) 
         
         # data (as pandas dataframes) 
@@ -58,12 +58,6 @@ def acquire():
                 print(e)
     # drop 24206 duplicates
     df = df.drop_duplicates()
-
-
-    #df.Diabetes_binary = pd.Categorical(df.Diabetes_binary)
-
-    # rename the target variable
-    #df.rename({'Diabetes_binary':'Diabetes'}, axis=1, inplace=True)
 
     return df
 
@@ -184,9 +178,11 @@ def balance_data(df, target='Diabetes_binary', replace=False):
     # get x and y. x - the value of majority, y - the value of minority
     x = df[target].value_counts().index[0]
     y = df[target].value_counts().index[1]
+    
     # Separate majority and minority classes
     majority = df[df[target] == x] # majority
     minority = df[df[target] == y] # minority
+    
     # for upscaling
     if replace:
         # Upscale the minority class
