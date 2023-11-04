@@ -366,31 +366,3 @@ def get_ohe(train):
     ohe = OneHotEncoder(handle_unknown='error', drop='first', sparse=False)
     ohe.fit(train[ordinal_cat + ordinal_num])
     return ohe
-
-def transform_single(patient: dict, ohe: OneHotEncoder):
-    ''' 
-    '''
-    # binary = ['HighBP', 'HighChol', 'CholCheck',  'Smoker', 'Stroke',
-    #    'HeartDiseaseorAttack', 'PhysActivity', 'HvyAlcoholConsump', 'DiffWalk']
-    # ordinal_cat = ['MentHlth', 'PhysHlth']
-    # ordinal_num = ['GenHlth', 'Age', 'Education', 'Income']
-    # bmi = ["BMI_under", "BMI_over"]
-
-    patient = pd.DataFrame([patient])
-    patient= change_bmi(clean_data(patient, single=True))
-    return np.concatenate([
-        patient[binary],
-        ohe.transform(patient[ordinal_cat + ordinal_num]).astype('uint8'),
-        patient[bmi].astype('uint8')
-        ], axis=1)
-
-rf = RandomForestClassifier(
-    n_estimators=500, 
-    max_depth = 10,
-    min_samples_leaf = 10,
-    n_jobs=-1, # speed up the process
-    random_state=dp.seed
-    )
-rf.fit(X_train, y_train)
-
-# save OneHotEncoder
