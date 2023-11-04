@@ -1,10 +1,10 @@
 import os
 import pickle
-from ucimlrepo import fetch_ucirepo 
 
 import pandas as pd 
 import numpy as np 
 from sklearn.utils import resample
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
 
@@ -29,7 +29,8 @@ path_to_file = os.path.join(dir, filename)
 if os.path.isfile(path_to_file):
     df = pd.read_csv(path_to_file)
 else:
-        # fetch dataset 
+    # fetch dataset 
+    from ucimlrepo import fetch_ucirepo 
     cdc_diabetes_health_indicators = fetch_ucirepo(id=891) 
     
     # data (as pandas dataframes) 
@@ -114,12 +115,12 @@ rf = RandomForestClassifier(
     max_depth = 10,
     min_samples_leaf = 10,
     n_jobs=-1, # speed up the process
-    random_state=dp.seed
+    random_state=seed
     )
 rf.fit(X_train, y_train)
 
 # create deployment directory
-dir_ = "deployment1"
+dir_ = "deployment"
 if not os.path.exists(dir_):
     try:
         os.mkdir(dir_)
