@@ -214,6 +214,9 @@ On your terminal move to the project's directory, activate the virtual environme
         `docker build -t diabetes-project .`
 
         This will build the Docker image on your machine.
+        * In case you run into "Permission denied" error, re-run the command as a superuser":
+
+        `sudo docker build -t diabetes-project .`
 4. Next, run Docker image. 
 
     `docker run --rm -p 2912:2912 diabetes-project`
