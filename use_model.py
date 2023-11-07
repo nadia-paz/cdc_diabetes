@@ -45,3 +45,4 @@ X = t.transform_single()
 predictions = model.predict_proba(X)[:, 1][0].round(2)
 
 print("Probability of diabetes is", predictions)
+print("Diabetes status:", predictions >= 0.4)

@@ -111,12 +111,12 @@ X_train = np.concatenate([
 
 # create and train the model
 rf = RandomForestClassifier(
-    n_estimators=500, 
-    max_depth = 10,
-    min_samples_leaf = 10,
-    n_jobs=-1, # speed up the process
-    random_state=seed
-    )
+        n_estimators=100, 
+        max_depth = 15,
+        min_samples_leaf = 10,
+        min_samples_split=5,
+        n_jobs=-1, # speed up the process
+        random_state=dp.seed)
 rf.fit(X_train, y_train)
 
 # create deployment directory
